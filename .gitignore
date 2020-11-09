@@ -5,10 +5,15 @@
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
+# remove files
+.ipynb_checkpoints
+.idea
 
-#to remove type of documents
+# to remove type of documents
 *.pdf
 *.DS_Store
+*.fq
+
 
 # User-specific stuff
 .idea/**/workspace.xml
