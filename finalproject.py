@@ -19,7 +19,6 @@ for line in f:
         line = line.strip()
         line = line.split()
         important.append("patient_{:02d}".format(n))
-        important.append(line[1])
         important.append(line[2])
         # important.append(line[1:3])
         # print("first1 ", line)
@@ -29,82 +28,69 @@ for line in f:
         important.append(line[2])
         # print("secondif ", line)
 
-print(important) #if you put *impotant it prints nicer
+# print(important)  # if you put *impotant it prints nicer
 
-# this is the failing option of the previous one
+# it creates list with just the sequences and patient once.
 
-# mut_count = 0
-# checking = 0
-# positions_mutations = ("121", "421")
-# pat = 0
-# matrix = []
-# for line in important:
-#     if any(s in line for s in positions_mutations):
-#         checking = 1
-#     elif "patient" in line:
-#         checking = 0
-#     elif checking == 1:
-#         if line[13] == 'A':
-#             mut_count += 1
-#         elif line[21] == 'G':
-#             mut_count += 1
-#     if "aaaa" in line:
-#         pat += 1
-#         matrix.append("patient_{:02d}".format(pat))
-#         matrix.append(mut_count)
-#         mut_count = 0
-#
-# print(matrix)
-
-# this option checks for each mutation but not for all in one.
-
-mutT134A = 0
-checking = 0
-pat = 0
-matrix = []
+query = []
+A = []
+B = []
+counter = 0
+patient_name = "patient_00"
 for line in important:
-     if line == "121":
-         checking = 1
-     elif "patient" in line:
-         checking = 0
-     elif checking == 1:
-         if line[13] == 'A':
-             mutT134A += 1
-     if "aaaa" in line:
-         pat += 1
-         matrix.append("patient_{:02d}".format(pat))
-         matrix.append(mutT134A)
-         mutT134A = 0
+    if "patient" in line:
+        if line != patient_name:
+            patient_name = line
+            query.append(patient_name)
+            A.append(patient_name)
+            B.append(patient_name)
+        counter += 1
+    elif counter == 1:
+        query.append(line)
+        counter += 1
+    elif counter == 2:
+        A.append(line)
+        counter += 1
+    elif counter == 3:
+        B.append(line)
+        counter = 0
 
-print(matrix)
+# print(query)
+# print(A)
+# print(B)
 
+# this puts all the sequences together
 
-mutT134A = 0
-checkingmutT134A = 0
-mutA443G = 0
-checkingmutA433G = 0
-pat = 0
-matrix = []
-for line in important:
-     if line == "121":
-         checkingmutT134A = 1
-     if line == "421":
-         checkingmutA433G = 1
-     elif "patient" in line:
-         checkingmutT134A = 0
-         checkingmutA433G = 0
-     elif checkingmutT134A == 1:
-         if line[13] == 'A':
-             mutT134A += 1
-     elif checkingmutA433G == 1:
-         if line[21] == 'G':
-             mutA443G += 1
-     if "aaaa" in line:
-         pat += 1
-         matrix.append("patient_{:02d}".format(pat))
-         matrix.append(mutT134A)
-         matrix.append(mutA443G)
-         mutT134A = 0
-         mutA443G = 0
+seqA = []
+counter2 = 1
+sequence_sum = ""
+patient_name = "patient_00"
+for line in A:
+    if "patient" in line:
+        if line != patient_name:
+            seqA.append(sequence_sum)
+            seqA.append(line)
+    elif counter2 == 1:
+        one_line = line
+        sequence_sum += one_line
 
-#print(matrix)
+# print(seqA)
+
+seqB = []
+counter3 = 1
+sequence_sum = ""
+patient_name = "patient_00"
+for line in B:
+    if "patient" in line:
+        if line != patient_name:
+            seqB.append(sequence_sum)
+            seqB.append(line)
+    elif counter3 == 1:
+        one_line = line
+        sequence_sum += one_line
+
+#in this way you can check in which positions there is an A
+s = seqB[2]
+n = len(s)
+for i in range(n):
+    if s[i] == 'A': print(i + 1)
