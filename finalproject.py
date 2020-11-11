@@ -28,7 +28,7 @@ for line in f:
         important.append(line[2])
         # print("secondif ", line)
 
-# print(important)  # if you put *impotant it prints nicer
+#print(important)  # if you put *impotant it prints nicer
 
 # it creates list with just the sequences and patient once.
 
@@ -69,7 +69,8 @@ for line in A:
     if "patient" in line:
         if line != patient_name:
             seqA.append(sequence_sum)
-            seqA.append(line)
+            seqA.append(line + "A")
+            sequence_sum = "" 
     elif counter2 == 1:
         one_line = line
         sequence_sum += one_line
@@ -84,13 +85,34 @@ for line in B:
     if "patient" in line:
         if line != patient_name:
             seqB.append(sequence_sum)
-            seqB.append(line)
+            seqB.append(line + "B")
+            sequence_sum = ""     
     elif counter3 == 1:
         one_line = line
         sequence_sum += one_line
 
-#in this way you can check in which positions there is an A
-s = seqB[2]
-n = len(s)
-for i in range(n):
-    if s[i] == 'A': print(i + 1)
+#print(seqB)
+
+#now i have "patientA" "seqA" "patientB" "seqB"
+seq_AB = seqA + seqB
+# print(len(seq_AB[2]))
+#print(seq_AB)
+
+    
+
+# in this way you can check in which positions there is an A
+s = seqB[1:3] + seqA[1:3]
+print(s[1])
+mut134 = 0
+counter4 = 0
+n = [133]
+for line in s:
+    if "patient" in line:
+         counter4 += 1
+    elif counter4 == 1:
+         for position in n:
+            if line[position] != '.':
+                mut134 += 1
+         counter4 = 0
+
+print(mut134)

@@ -13,6 +13,8 @@
 *.pdf
 *.DS_Store
 *.fq
+*.fasta
+*.dat
 
 
 # User-specific stuff
