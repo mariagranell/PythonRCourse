@@ -120,31 +120,48 @@ for line in s:
 # to make a dictionary with seqA
 
 counter5 = 0
-dic_A = []
+dic_A = {}
 for line in seqA:
     if "patient" in line:
         pat_name = line
         counter5 += 1
     elif counter5 == 1:
-        seq_name = line
-        association = {
-            pat_name: seq_name
-        }
-        dic_A.append(association)
+        dic_A[pat_name] = line
         counter5 = 0
+#print(dic_A)
 
 # to make a dictionary with seqB
 counter6 = 0
-dic_B = []
+dic_B = {}
 for line in seqB:
     if "patient" in line:
         pat_name = line
         counter6 += 1
     elif counter6 == 1:
-        seq_name = line
-        association = {
-            pat_name: seq_name
-        }
-        dic_B.append(association)
+        dic_B[pat_name] = line
         counter6 = 0
-print(dic_B)
+#print(dic_B)
+
+# sum up the mutations of given indexes
+
+mut_index_list = [133, 442, 768, 954, 989, 1050, 1077, 1940, 2137, 2637, 3002]
+patient_index_list = list(range(1, 18))
+result = {}
+for patient_index in patient_index_list:
+    patient_name = "patient_{:02d}".format(patient_index)
+    result[patient_name] = {}
+    for mut_index in mut_index_list:
+        counter = 0
+        potential_mutation_A = dic_A.get(patient_name)[mut_index]
+        if potential_mutation_A != ".":
+            counter += 1
+        potential_mutation_B = dic_B.get(patient_name)[mut_index]
+        if potential_mutation_B != ".":
+            counter += 1
+        result[patient_name][mut_index] = counter
+
+#print(result)
+
+print("{:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format( "Name", "T134A", "A443G", "G769C", "G955C", "A990C", "G1051A", "G1078T", "T1941A", "T2138C", "G2638T", "A3003T"))
+for patient, mut in result.items():
+    print("{:<10} {:<10}".format())
