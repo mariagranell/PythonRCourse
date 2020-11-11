@@ -69,7 +69,7 @@ for line in A:
     if "patient" in line:
         if line != patient_name:
             seqA.append(sequence_sum)
-            seqA.append(line + "A")
+            seqA.append(line)
             sequence_sum = ""
     elif counter2 == 1:
         one_line = line
@@ -85,7 +85,7 @@ for line in B:
     if "patient" in line:
         if line != patient_name:
             seqB.append(sequence_sum)
-            seqB.append(line + "B")
+            seqB.append(line)
             sequence_sum = ""
     elif counter3 == 1:
         one_line = line
