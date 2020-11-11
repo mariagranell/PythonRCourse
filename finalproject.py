@@ -28,7 +28,7 @@ for line in f:
         important.append(line[2])
         # print("secondif ", line)
 
-#print(important)  # if you put *impotant it prints nicer
+# print(important)  # if you put *impotant it prints nicer
 
 # it creates list with just the sequences and patient once.
 
@@ -70,7 +70,7 @@ for line in A:
         if line != patient_name:
             seqA.append(sequence_sum)
             seqA.append(line + "A")
-            sequence_sum = "" 
+            sequence_sum = ""
     elif counter2 == 1:
         one_line = line
         sequence_sum += one_line
@@ -86,33 +86,65 @@ for line in B:
         if line != patient_name:
             seqB.append(sequence_sum)
             seqB.append(line + "B")
-            sequence_sum = ""     
+            sequence_sum = ""
     elif counter3 == 1:
         one_line = line
         sequence_sum += one_line
 
-#print(seqB)
+# print(seqB)
 
-#now i have "patientA" "seqA" "patientB" "seqB"
+# now i have "patientA" "seqA" "patientB" "seqB"
 seq_AB = seqA + seqB
 # print(len(seq_AB[2]))
-#print(seq_AB)
+# print(seq_AB)
 
-    
 
 # in this way you can check in which positions there is an A
 s = seqB[1:3] + seqA[1:3]
-print(s[1])
+# print(s[1])
 mut134 = 0
 counter4 = 0
 n = [133]
 for line in s:
     if "patient" in line:
-         counter4 += 1
+        counter4 += 1
     elif counter4 == 1:
-         for position in n:
+        for position in n:
             if line[position] != '.':
                 mut134 += 1
-         counter4 = 0
+        counter4 = 0
 
-print(mut134)
+# print(mut134)
+
+
+# to make a dictionary with seqA
+
+counter5 = 0
+dic_A = []
+for line in seqA:
+    if "patient" in line:
+        pat_name = line
+        counter5 += 1
+    elif counter5 == 1:
+        seq_name = line
+        association = {
+            pat_name: seq_name
+        }
+        dic_A.append(association)
+        counter5 = 0
+
+# to make a dictionary with seqB
+counter6 = 0
+dic_B = []
+for line in seqB:
+    if "patient" in line:
+        pat_name = line
+        counter6 += 1
+    elif counter6 == 1:
+        seq_name = line
+        association = {
+            pat_name: seq_name
+        }
+        dic_B.append(association)
+        counter6 = 0
+print(dic_B)
