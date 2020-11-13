@@ -1,4 +1,3 @@
-import re
 
 f = open("datafinalproject.dat", "r")
 
@@ -19,7 +18,8 @@ for line in f:
         line = line.strip()
         line = line.split()
         important.append("patient_{:02d}".format(n))
-        important.append(line[2])
+        important.append(line[1])
+        # important.append(line[2])
         # important.append(line[1:3])
         # print("first1 ", line)
     elif found == 1:  # lines that have the hit
@@ -28,7 +28,7 @@ for line in f:
         important.append(line[2])
         # print("secondif ", line)
 
-# print(important)  # if you put *impotant it prints nicer
+# print(important)  # if you put *important it prints nicer
 
 # it creates list with just the sequences and patient once.
 
@@ -75,8 +75,6 @@ for line in A:
         one_line = line
         sequence_sum += one_line
 
-# print(seqA)
-
 seqB = []
 counter3 = 1
 sequence_sum = ""
@@ -91,31 +89,13 @@ for line in B:
         one_line = line
         sequence_sum += one_line
 
+# print(seqA)
 # print(seqB)
 
-# now i have "patientA" "seqA" "patientB" "seqB"
-seq_AB = seqA + seqB
-# print(len(seq_AB[2]))
-# print(seq_AB)
+# to put the frame of patient17 correctly
 
-
-# in this way you can check in which positions there is an A
-s = seqB[1:3] + seqA[1:3]
-# print(s[1])
-mut134 = 0
-counter4 = 0
-n = [133]
-for line in s:
-    if "patient" in line:
-        counter4 += 1
-    elif counter4 == 1:
-        for position in n:
-            if line[position] != '.':
-                mut134 += 1
-        counter4 = 0
-
-# print(mut134)
-
+seqA[34] = "............................................................" + seqA[34]
+seqB[34] = "............................................................" + seqB[34]
 
 # to make a dictionary with seqA
 
@@ -128,7 +108,7 @@ for line in seqA:
     elif counter5 == 1:
         dic_A[pat_name] = line
         counter5 = 0
-#print(dic_A)
+# print(dic_A)
 
 # to make a dictionary with seqB
 counter6 = 0
@@ -140,7 +120,7 @@ for line in seqB:
     elif counter6 == 1:
         dic_B[pat_name] = line
         counter6 = 0
-#print(dic_B)
+# print(dic_B)
 
 # sum up the mutations of given indexes
 
@@ -160,8 +140,17 @@ for patient_index in patient_index_list:
             counter += 1
         result[patient_name][mut_index] = counter
 
-#print(result)
+# print(result)
 
-print("{:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format( "Name", "T134A", "A443G", "G769C", "G955C", "A990C", "G1051A", "G1078T", "T1941A", "T2138C", "G2638T", "A3003T"))
+# to print the table!
+print("{:<15} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format("Name", "T134A",
+                                                                                                   "A443G", "G769C",
+                                                                                                   "G955C", "A990C",
+                                                                                                   "G1051A", "G1078T",
+                                                                                                   "T1941A", "T2138C",
+                                                                                                   "G2638T", "A3003T"))
 for patient, mut in result.items():
-    print("{:<10} {:<10}".format())
+    print("{:<15}".format(patient), end=" ")
+    for value in mut.values():
+        print("{:<10}".format(value), end=" ")
+    print("")
