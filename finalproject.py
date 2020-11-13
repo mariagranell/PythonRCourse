@@ -1,8 +1,6 @@
 f = open("datafinalproject.dat", "r")
-# f = open("dat_try.dat", "r")
 
-# creates a list with all the lines and information i am
-# interested in
+# creates a list with all the lines and information I am interested in
 
 n = 1
 found = 0
@@ -10,27 +8,21 @@ important = []
 for line in f:
     if len(line.strip()) == 0:
         found = 0
-        # print("stop")
     if "Query_" in line:  # lines that have the query
         found = 1
         line = line.strip()
         line = line.split()
         important.append("patient_{:02d}".format(n))
         important.append(line[1])
-        # important.append(line[2])
-        # important.append(line[1:3])
-        # print("first1 ", line)
         if "aaaa" in line[2]:  # last line of a patient, being line now a list
             n += 1
     elif found == 1:  # lines that have the hit
         line = line.strip()
         line = line.split()
         important.append(line[2])
-        # print("secondif ", line)
-
 # print(important)  # if you put *important it prints nicer
 
-# it creates list with just the sequences and patient once.
+# it creates list with the patient just once and the sequences.
 
 patient_numbers = []
 A = []
@@ -59,14 +51,12 @@ for line in important:
     elif counter == 3:
         B.append(line)
         counter = 0
-
-# print(query)
+# print(patient_numbers)
 # print(A)
 # print(B)
 
 
-# this puts all the sequences together
-
+# to put all the sequences together
 
 seqA = []
 counter = 0
@@ -92,9 +82,7 @@ for line in A:
     if length_counter == len(A):
         seqA.append(sequence_sum)
         sequence_sum = ""
-
 # print(seqA)
-
 
 seqB = []
 counter = 0
@@ -120,9 +108,7 @@ for line in B:
     if length_counter == len(B):
         seqB.append(sequence_sum)
         sequence_sum = ""
-
 # print(seqB)
-
 
 # to make a dictionary with seqA
 
@@ -138,6 +124,7 @@ for line in seqA:
 # print(dic_A)
 
 # to make a dictionary with seqB
+
 counter6 = 0
 dic_B = {}
 for line in seqB:
@@ -170,10 +157,10 @@ for patient_index in patient_index_list:
         if potential_mutation_B != ".":
             counter += 1
         result[patient_name][mut_index] = counter
-
 # print(result)
 
 # to print the table!
+
 print("{:<15} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format("Name", "T134A",
                                                                                                    "A443G", "G769C",
                                                                                                    "G955C", "A990C",
