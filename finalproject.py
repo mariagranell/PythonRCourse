@@ -1,5 +1,5 @@
-
 f = open("datafinalproject.dat", "r")
+# f = open("dat_try.dat", "r")
 
 # creates a list with all the lines and information i am
 # interested in
@@ -8,8 +8,6 @@ n = 1
 found = 0
 important = []
 for line in f:
-    if "aaaa" in line:  # last line of a patient
-        n += 1
     if len(line.strip()) == 0:
         found = 0
         # print("stop")
@@ -22,6 +20,8 @@ for line in f:
         # important.append(line[2])
         # important.append(line[1:3])
         # print("first1 ", line)
+        if "aaaa" in line[2]:  # last line of a patient, being line now a list
+            n += 1
     elif found == 1:  # lines that have the hit
         line = line.strip()
         line = line.split()
@@ -32,21 +32,26 @@ for line in f:
 
 # it creates list with just the sequences and patient once.
 
-query = []
+patient_numbers = []
 A = []
 B = []
 counter = 0
+counter_number = 0
 patient_name = "patient_00"
 for line in important:
     if "patient" in line:
         if line != patient_name:
             patient_name = line
-            query.append(patient_name)
+            patient_numbers.append(patient_name)
             A.append(patient_name)
             B.append(patient_name)
+            counter_number += 1
         counter += 1
     elif counter == 1:
-        query.append(line)
+        if counter_number == 1:
+            A.append(line)
+            B.append(line)
+            counter_number = 0
         counter += 1
     elif counter == 2:
         A.append(line)
@@ -59,43 +64,65 @@ for line in important:
 # print(A)
 # print(B)
 
+
 # this puts all the sequences together
 
+
 seqA = []
-counter2 = 1
+counter = 0
 sequence_sum = ""
 patient_name = "patient_00"
+length_counter = 0
 for line in A:
+    length_counter += 1
     if "patient" in line:
         if line != patient_name:
             seqA.append(sequence_sum)
             seqA.append(line)
             sequence_sum = ""
-    elif counter2 == 1:
+            counter = 1
+    elif counter == 1:
+        if line != "1":
+            sequence_sum = "." * (int(line) - 1)
+            counter = 2
+        counter = 2
+    elif counter == 2:
         one_line = line
         sequence_sum += one_line
+    if length_counter == len(A):
+        seqA.append(sequence_sum)
+        sequence_sum = ""
+
+# print(seqA)
+
 
 seqB = []
-counter3 = 1
+counter = 0
 sequence_sum = ""
 patient_name = "patient_00"
+length_counter = 0
 for line in B:
+    length_counter += 1
     if "patient" in line:
         if line != patient_name:
             seqB.append(sequence_sum)
             seqB.append(line)
             sequence_sum = ""
-    elif counter3 == 1:
+            counter = 1
+    elif counter == 1:
+        if line != "1":
+            sequence_sum = "." * (int(line) - 1)
+            counter = 2
+        counter = 2
+    elif counter == 2:
         one_line = line
         sequence_sum += one_line
+    if length_counter == len(B):
+        seqB.append(sequence_sum)
+        sequence_sum = ""
 
-# print(seqA)
 # print(seqB)
 
-# to put the frame of patient17 correctly
-
-seqA[34] = "............................................................" + seqA[34]
-seqB[34] = "............................................................" + seqB[34]
 
 # to make a dictionary with seqA
 
@@ -120,7 +147,11 @@ for line in seqB:
     elif counter6 == 1:
         dic_B[pat_name] = line
         counter6 = 0
-# print(dic_B)
+#print(dic_B)
+
+# to check the length of the sequences
+# for key, value in dic_A.items() :
+#     print (key, len(value))
 
 # sum up the mutations of given indexes
 
