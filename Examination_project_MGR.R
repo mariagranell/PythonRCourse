@@ -37,9 +37,6 @@ data_snp <- read.table("original_data/BPI889_SNP_17.txt",
 ## Visually inspect imported data.frames
 head(data_pk, n = 5L)
 str(data_pk)
-# Blood samples were collected at 10, 20, 30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 480, 720 and 1440
-# min post-dose for BPI889 concentration determination. The concentrations of BPI889 are found in the PK data file.
-# Units of concentrations are mg/L. Note NA are indicated with .
 head(data_snp, n = 5L)
 str(data_snp)
 
@@ -48,15 +45,10 @@ str(data_snp)
 names(data_pk) <- c("id", "0.15", "0.3", "0.5","0.75","1","1.5","2","2.5","3","4","5","6","8","12","24","sex","weight","height","age")
 data_pk$sex <- as.factor(data_pk$sex) # is a factor because is category of two levels
 
-# remove the pat form patients
-#data_pk[,1] <- gsub("\\D*","",data_pk$id)
-#data_pk$id <- as.integer(data_pk$id) # I changed t an integer to be able to oder the data set by increasing ID
-#data_pk <- data_pk[order(data_pk$id),] # Reorder rows
-
 ### modifications to data_snp
 names(data_snp) <- c("id", "T134A", "A443G", "G769C", "G955C", "A990C")
 
-### Combine dataframs into one object with long format
+### Combine data frames into one object with long format
 
 # to merge the data frams by id
 data_all <- merge(data_pk, data_snp, by = "id")
@@ -66,7 +58,7 @@ head(data_all, n= 5L)
 tidy_all <- gather(data_all, key= time, value = concentration, -sex, -age, -height, -weight, -T134A, -A443G, -G769C, -G955C, -A990C, -id)
 tidy_all <- gather(tidy_all, key= snp, value = genotype, -sex, -age, -time, -height, -weight, -concentration, -id)
 
-tidy_all$time <- as.numeric(tidy_all$time) # so later in the grpahs we can plot against time, a number
+tidy_all$time <- as.numeric(tidy_all$time) # so later in the graphs I can plot against time, as a number
 tidy_all$snp <- as.factor(tidy_all$snp)    # snp to fators because they are categories of values
 
 # Variable calculations ---------------------------------------------------
@@ -90,28 +82,24 @@ data_all$fortytbw <- ifelse(data_all$tbw > 40,
 
 ## cmax
 data_all[, "cmax"] <- apply(data_all[, 2:16], 1, max, na.rm = T)
-head(data_all)
 
 ## half_life
 
 # change data_all to long format
-head(data_all)
 tidy_all2 <- gather(data_all, key= time, value = concentration,  -T134A, -A443G, -G769C, -G955C, -A990C,
                     -id, -sex, -age, -height, -weight, -cmax, -tbw, -fortytbw)
 tidy_all2 <- gather(tidy_all2, key= snp, value = genotype, -id, -sex, -age, -height, -weight, -cmax, -tbw, -fortytbw,
                     -concentration, -time)
 tidy_all2$time <- as.numeric(tidy_all2$time)                          # to oder the data by time during the loop
-head(tidy_all2, n= 5L)
-str(tidy_all)
 
 # calculate k
-
 n_pat <- nrow(tidy_all2[!duplicated(tidy_all2$id),])                  # to extract the number of patients
 n_row <- 0                                                            # to determine when a patient was selected
-k_list <- matrix(ncol=2,nrow = n_pat)                                   # to acummulate the value of k
+k_list <- matrix(ncol=2,nrow = n_pat)                                 # to acummulate the value of k
 colnames(k_list) <- c("id", "k")                                      # to name variables
 max_c_row <- 0
 c_max_value <- 0
+
 for (i in 1:n_pat){
   dat_each_pat <-subset(tidy_all2, id == paste("pat", i,sep=""))
   n_row <- nrow(dat_each_pat)
@@ -141,8 +129,6 @@ for (i in 1:n_pat){
   }
 }
 
-k_list
-
 # calculate half_life
 half_life <- as.data.frame(k_list)
 half_life[,2] <- log(2)/as.numeric(half_life[,2])
@@ -153,58 +139,7 @@ tidy_all2 <- merge(tidy_all2, half_life, by = "id")
 tail(tidy_all2)
 str(tidy_all2)
 
-# auc
-
-n_pat <- nrow(tidy_all2[!duplicated(tidy_all2$id),])                  # to extract the number of patients
-n_row <- 0                                                            # to determine when a patient was selected
-n_time <- 15                                                          # the numer of times the blood sales were collected
-t_list <- matrix(0,ncol=3,nrow = (n_time + 1))                   # to acummulate the calculations of t, for t and control for pat0
-auc_list <- matrix(ncol=3,nrow = n_time)                              # to acummulate the calculations of auc for each patient
-auc_list_all <- matrix(0,ncol=3)                                 # the calculations of auc for all patients
-colnames(t_list) <- c("t", "concentration","time")                    # to name variables
-colnames(auc_list) <- c("id", "auc","time")
-colnames(auc_list_all) <- c("id", "auc","time")
-
-for (i in 1:n_pat){
-  dat_each_pat <-subset(tidy_all2, id == paste("pat", i,sep=""))      # to select the data of each patient
-  n_row <- nrow(dat_each_pat)                                         # when the data of a new patient start
-  if (n_row == 75){
-
-    # organize data frame
-    dat_each_pat <- dat_each_pat[order(dat_each_pat$time),]           # to order by time
-    dat_each_pat <- dat_each_pat[!duplicated(dat_each_pat$time),]     # to remove duplicates
-    n_time <- nrow(dat_each_pat)
-
-    # calculate t and auc
-    k <- dat_each_pat[1,8]                                                     # to collect k
-    for (j in 1:n_time){
-      # to recollect wich patient is
-      auc_list[j,1] <- paste("pat", i,sep="")
-
-      # calculate t
-      t_list[j+1,2] <- dat_each_pat[j,10]                                      # to store concentration
-      t_list[j+1,3] <- dat_each_pat[j,9]                                       # to store time
-      t_list[j+1,1] <- (t_list[j+1,2]+t_list[j,2])/2*(t_list[j+1,3]-t_list[j,3])
-
-      # calculate acu
-      auc <- sum(t_list[,1]) + (t_list[j+1,2]/k)
-      auc_list[j,2] <- round(auc, digits = 4)                          # to store auc calculations with 4 digits
-      auc_list[j,3] <- dat_each_pat[j,9]                                        # to store the tme of the auc
-    }
-
-    #to store the list of auc
-    auc_list_all <- rbind(auc_list_all, auc_list)
-
-  }
-}
-
-auc_list_all <- auc_list_all[2:nrow(auc_list_all),] # to remove the first observation
-
-# to include auc in the data frame
-tidy_all2 <- merge(tidy_all2, auc_list_all, by = c("id","time"))
-tail(tidy_all2)
-str(tidy_all2)
-
+## auc
 n_pat <- nrow(tidy_all2[!duplicated(tidy_all2$id),])                  # to extract the number of patients
 n_row <- 0                                                            # to determine when a patient was selected
 n_time <- 15                                                          # the numer of times the blood sales were collected
@@ -212,8 +147,6 @@ t_list <- matrix(0,ncol=3,nrow = (n_time + 1))                   # to acummulate
 auc_list <- matrix(ncol=2,nrow = n_pat)                               # to acummulate the calculations of auc for each patient
 colnames(t_list) <- c("t", "concentration","time")                    # to name variables
 colnames(auc_list) <- c("id", "auc")
-
-head(tidy_all2)
 
 for (i in 1:n_pat){
   dat_each_pat <-subset(tidy_all2, id == paste("pat", i,sep=""))      # to select the data of each patient
@@ -247,9 +180,6 @@ for (i in 1:n_pat){
 
 # to include auc in the data frame
 tidy_all2 <- merge(tidy_all2, auc_list, by = "id")
-tail(tidy_all2)
-str(tidy_all2)
-
 
 # Data Exploration --------------------------------------------------------
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -270,6 +200,7 @@ tidy_all2%>%
 # summary of auc
 tidy_all2$auc <- as.numeric(tidy_all2$auc)
 tidy_all2%>%
+  filter(!is.na(auc)) %>%
   summarize(mean =mean(auc), median= median(auc), sd = sd(auc), min_range=min(auc), max_range=max(auc))
 
 # Graphical analysis -----------------------------------------------------
@@ -286,29 +217,64 @@ df %>%
 
 # Graphically display correlations between Cmax, t1/2 and AUC (scatter plot)
 df%>%
-  group_by(id)%>%
+  filter(!is.na(auc)) %>% #to remove the Na values of auc
   ggplot( aes(x = half_life, y = auc)) +
-    geom_point(aes(color = sex), alpha = 0.5)
+  geom_smooth( method=loess, se= TRUE, color ="orange")+
+  geom_point(color = "blue", size = 2.5)+
+  labs(x = "HALF LIFE", y = "AUC") +
+  theme_bw()
+# There seems to be a correlation between Auc and the half life, which makes sense.
+# Since both reprent mesaurmets of the curve.
 
-geom_point(aes(color = sex, size = cmax), alpha = 0.5) +
+df%>%
+  filter(!is.na(auc)) %>% #to remove the Na values of auc
+  ggplot( aes(x = cmax, y = auc)) +
+  geom_smooth( method=loess, se= TRUE, color ="aquamarine")+
+  geom_point(color = "darkseagreen4", size = 2.5)+
+  labs(x = "CMAX", y = "AUC") +
+  theme_bw()
+
+df%>%
+  ggplot( aes(x = half_life, y = cmax)) +
+  geom_smooth( method=loess, se= TRUE, color ="darkmagenta")+
+  geom_point(color = "deeppink", size = 2.5)+
+  labs(x = "HALF LIFE", y = "CMAX") +
+  theme_bw()
+
+# graph just for fun
+df%>%
+  filter(!is.na(auc)) %>% #to remove the Na values of auc
+  ggplot( aes(x = half_life, y = auc)) +
+  geom_point(aes(color = sex, size = cmax), alpha = 0.5) +
   scale_color_manual(values = c("#00AFBB", "#FC4E07")) +
-  scale_size(range = c(0.5, 12))  # Adjust the range of points size
+  scale_size(range = c(0.5, 12))+  # Adjust the range of points size
+  labs(x = "HALF LIFE", y = "AUC") +
+  theme_bw()
 
 # Graphically display t1/2 and AUC versus SNPs (box-whiskers plots)
 a<-ggplot(df, aes(x=snp, y=half_life)) +
   geom_boxplot(fill="slateblue", alpha=0.2) +
+  ylab("HALF LIFE")+
   xlab("SNP")
-b<-ggplot(df, aes(x=snp, y=auc)) +
+
+b<-df%>%
+  filter(!is.na(auc)) %>% #to remove the Na values of auc
+  ggplot(aes(x=snp, y=auc)) +
   geom_boxplot(fill="orange", alpha=0.2) +
+  ylab("AUC")+
   xlab("SNP")
+
 ggarrange(a, b, nrow = 1, ncol = 2, labels = 1:2)
+# I don't really understand the purpose of this plotting.
+# But this is what I though the instructions asked for.
 
 # Graphically display correlations between t1/2 and TBW to assess a
 # relationship and add a linear regression (scatter with linear regression)
-
 ggplot(df, aes(x=half_life, y=tbw)) +
   geom_point()+
-  geom_smooth(method=lm)
+  geom_smooth(method=lm)+
+  labs(x = "HALF LIFE", y = "TBW") +
+  theme_light()
 
 
 # Statistical testing -----------------------------------------------------
